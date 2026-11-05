@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Memory sync on startup",
+    "description": "When Harness starts, push this machine's git-backed memory folder, let the peer commit and push back, then pull. Failure can raise a system dialog."
+  }
+}

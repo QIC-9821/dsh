@@ -1,0 +1,45 @@
+{
+  "name": "dsh-memory-sync",
+  "version": "0.1.0",
+  "description": "Sync a git-backed memory folder between machines when DeepSeek Harness starts: push from this machine, let the peer commit and push back, then pull. 启动 DSH 时自动同步两端记忆。",
+  "type": "module",
+  "license": "MIT",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "test/",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "memory",
+    "git",
+    "sync",
+    "startup"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

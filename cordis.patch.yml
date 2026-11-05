@@ -1,0 +1,8 @@
+- insert:
+    - id: dsh-memory-sync
+      name: 'dsh-memory-sync'
+      config:
+        enabled: true
+        runOnStartup: true
+        mode: peer
+        repoPath: ''
