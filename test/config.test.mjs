@@ -69,3 +69,30 @@ test('a root volatile reference map is unwrapped', () => {
   assert.equal(cfg.remote, 'origin')
   assert.equal(cfg.branch, 'dev')
 })
+
+test('accessor-style references ({ get value() }) are unwrapped', () => {
+  // Harness exposes volatile fields as `{ get <value> }` accessors, not
+  // `{ get() }` methods; both shapes must normalize the same way.
+  const ref = (value) => ({
+    get get() {
+      return value
+    },
+  })
+  const cfg = normalizeConfig(
+    {
+      repoPath: ref('/srv/mem'),
+      remote: ref('upstream'),
+      branch: ref('stable'),
+      mode: ref('local'),
+      peerUser: ref('dsh'),
+      statusFile: ref('/srv/mem/status.md'),
+    },
+    { DSH_HOME: '/tmp/dsh-home' },
+  )
+  assert.equal(cfg.repoPath, resolve('/srv/mem'))
+  assert.equal(cfg.remote, 'upstream')
+  assert.equal(cfg.branch, 'stable')
+  assert.equal(cfg.mode, 'local')
+  assert.equal(cfg.peerUser, 'dsh')
+  assert.equal(cfg.statusFile, '/srv/mem/status.md')
+})
