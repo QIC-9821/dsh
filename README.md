@@ -56,6 +56,7 @@ DeepSeek Harness 插件：**每次 Harness 启动时，把本机的 git 记忆�
 | `commitPrefix` | `sync` | 自动提交信息前缀 |
 | `gitPath` | `git` | git 可执行文件 |
 | `localTimeoutMs` / `peerTimeoutMs` | `120000` | 单段超时 |
+| `statusFile` | 空 | 每次同步前写一份机器快照到该文件（如 `~/.dsh/memories/pc-status.md`），随同步一起提交；空 = 不写 |
 
 状态、日志、锁都在 `$DSH_HOME/memory-sync/`：`last-run.json`、`sync.log`、`lock/sync.lock`。
 

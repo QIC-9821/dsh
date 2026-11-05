@@ -42,6 +42,7 @@ export const Config = z
       gitPath: field(z.string().default('git')),
       localTimeoutMs: field(z.natural().default(120000)),
       peerTimeoutMs: field(z.natural().default(120000)),
+      statusFile: field(z.string().default('')),
     })
   : undefined
 

@@ -56,6 +56,7 @@ Then configure it in Harness settings ("Memory sync on startup"), or directly in
 | `commitPrefix` | `sync` | auto-commit prefix |
 | `gitPath` | `git` | git executable |
 | `localTimeoutMs` / `peerTimeoutMs` | `120000` | per-phase timeout |
+| `statusFile` | empty | write a machine snapshot there before each sync and commit it (e.g. `~/.dsh/memories/pc-status.md`); empty = off |
 
 State lives in `$DSH_HOME/memory-sync/`: `last-run.json`, `sync.log`, `lock/sync.lock`.
 
