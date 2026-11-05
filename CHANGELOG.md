@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-11-05
+
+### Changed
+
+- Repository renamed from `QIC-9821/dsh` to `QIC-9821/dsh-memory-sync`, so the
+  GitHub repo matches the npm package name. All metadata, badges and install
+  links point at the new URL (the old URL redirects).
+- `package.json` description is now a single English sentence: it is what npm
+  and plugin directories use as the English description, and the Chinese copy
+  lives in `locale/zh.json` and the README.
+
 ## [0.1.0] - 2026-11-05
 
 First public release.
@@ -26,4 +37,6 @@ First public release.
 - Tests covering dirty-tree commits, rebase over a peer commit, non-repo errors,
   lock exclusivity and staleness, and config normalization.
 
-[0.1.0]: https://github.com/QIC-9821/dsh/releases/tag/v0.1.0
+[0.1.0]: https://github.com/QIC-9821/dsh-memory-sync/releases/tag/v0.1.0
+
+[0.1.1]: https://github.com/QIC-9821/dsh-memory-sync/releases/tag/v0.1.1

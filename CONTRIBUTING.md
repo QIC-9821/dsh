@@ -7,7 +7,7 @@ Thanks for taking the time to improve `dsh-memory-sync`.
 Requirements: Node.js ≥ 22 (or the Node.js bundled with DeepSeek Harness).
 
 ```bash
-git clone https://github.com/QIC-9821/dsh.git
+git clone https://github.com/QIC-9821/dsh-memory-sync.git
 cd dsh-memory-sync
 npm test
 node --check index.js

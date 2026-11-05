@@ -1,17 +1,17 @@
 {
   "name": "dsh-memory-sync",
-  "version": "0.1.0",
-  "description": "每次打开 DeepSeek Harness，自动把本机的 git 记忆目录和另一台机器双向同步一次——开机就有最新记忆，不用常驻后台。Sync a git-backed memory folder with a peer machine on every DSH startup; no daemon, no cron.",
+  "version": "0.1.1",
+  "description": "Sync a git-backed memory folder with a peer machine on every DeepSeek Harness startup — no daemon, no cron, no manual pull.",
   "type": "module",
   "license": "MIT",
   "author": "QIC-9821",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QIC-9821/dsh.git"
+    "url": "git+https://github.com/QIC-9821/dsh-memory-sync.git"
   },
-  "homepage": "https://github.com/QIC-9821/dsh#readme",
+  "homepage": "https://github.com/QIC-9821/dsh-memory-sync#readme",
   "bugs": {
-    "url": "https://github.com/QIC-9821/dsh/issues"
+    "url": "https://github.com/QIC-9821/dsh-memory-sync/issues"
   },
   "main": "./index.js",
   "exports": {
