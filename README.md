@@ -1,7 +1,7 @@
 # dsh-memory-sync
 
 [![npm version](https://img.shields.io/npm/v/dsh-memory-sync.svg)](https://www.npmjs.com/package/dsh-memory-sync)
-[![CI](https://github.com/YOUR_GITHUB_NAME/dsh-memory-sync/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_NAME/dsh-memory-sync/actions/workflows/ci.yml)
+[![CI](https://github.com/QIC-9821/dsh/actions/workflows/ci.yml/badge.svg)](https://github.com/QIC-9821/dsh/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
 
@@ -20,7 +20,7 @@ dsh plugin add dsh-memory-sync
 固定版本或从源码安装：
 
 ```bash
-dsh plugin add github:YOUR_GITHUB_NAME/dsh-memory-sync#v0.1.0
+dsh plugin add github:QIC-9821/dsh#v0.1.0
 dsh plugin add /absolute/path/to/dsh-memory-sync
 ```
 

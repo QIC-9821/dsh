@@ -29,7 +29,7 @@ enabling it.
 
 Please do **not** open a public issue. Use GitHub's private advisory form:
 
-https://github.com/YOUR_GITHUB_NAME/dsh-memory-sync/security/advisories/new
+https://github.com/QIC-9821/dsh/security/advisories/new
 
 Include the version, platform, configuration (redacted), and a minimal
 reproduction. You should get an initial reply within a week.

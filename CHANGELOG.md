@@ -26,4 +26,4 @@ First public release.
 - Tests covering dirty-tree commits, rebase over a peer commit, non-repo errors,
   lock exclusivity and staleness, and config normalization.
 
-[0.1.0]: https://github.com/YOUR_GITHUB_NAME/dsh-memory-sync/releases/tag/v0.1.0
+[0.1.0]: https://github.com/QIC-9821/dsh/releases/tag/v0.1.0
