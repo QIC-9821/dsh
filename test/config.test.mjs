@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 
 import { normalizeConfig } from '../lib/config.mjs'
 
@@ -41,4 +41,31 @@ test('unknown mode degrades to peer and out-of-range numbers clamp', () => {
   assert.equal(cfg.mode, 'peer')
   assert.equal(cfg.localTimeoutMs, 120000)
   assert.equal(cfg.healIntervalSec, 600)
+})
+
+test('volatile config references are unwrapped', () => {
+  const ref = (value) => ({ get: () => value })
+  const cfg = normalizeConfig(
+    {
+      repoPath: ref('/srv/mem'),
+      mode: ref('local'),
+      enabled: ref(false),
+      peerHost: ref('example.com'),
+      startupGraceSec: ref(30),
+      statusFile: ref('/srv/mem/pc-status.md'),
+    },
+    { DSH_HOME: '/tmp/dsh-home' },
+  )
+  assert.equal(cfg.repoPath, resolve('/srv/mem'))
+  assert.equal(cfg.mode, 'local')
+  assert.equal(cfg.enabled, false)
+  assert.equal(cfg.peerHost, 'example.com')
+  assert.equal(cfg.startupGraceSec, 30)
+  assert.equal(cfg.statusFile, '/srv/mem/pc-status.md')
+})
+
+test('a root volatile reference map is unwrapped', () => {
+  const cfg = normalizeConfig({ get: () => ({ remote: 'origin', branch: 'dev' }) }, {})
+  assert.equal(cfg.remote, 'origin')
+  assert.equal(cfg.branch, 'dev')
 })
