@@ -5,14 +5,17 @@ import { join, resolve } from 'node:path'
 import { normalizeConfig } from '../lib/config.mjs'
 
 test('defaults resolve under DSH_HOME', () => {
-  const cfg = normalizeConfig({}, { DSH_HOME: 'C:\\data\\dsh' })
+  // DSH_HOME is platform-specific: use a native absolute path so the test also
+  // runs on Linux and macOS CI runners.
+  const home = process.platform === 'win32' ? 'C:\\data\\dsh' : '/srv/dsh-home'
+  const cfg = normalizeConfig({}, { DSH_HOME: home })
   assert.equal(cfg.enabled, true)
   assert.equal(cfg.runOnStartup, true)
   assert.equal(cfg.mode, 'peer')
   assert.equal(cfg.remote, 'cloud')
   assert.equal(cfg.branch, 'main')
-  assert.equal(cfg.repoPath, join('C:\\data\\dsh', 'memories'))
-  assert.equal(cfg.stateDir, join('C:\\data\\dsh', 'memory-sync'))
+  assert.equal(cfg.repoPath, join(home, 'memories'))
+  assert.equal(cfg.stateDir, join(home, 'memory-sync'))
 })
 
 test('empty strings fall back to defaults and nested values are normalized', () => {
