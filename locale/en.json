@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Memory sync on startup",
-    "description": "When Harness starts, push this machine's git-backed memory folder, let the peer commit and push back, then pull. Failure can raise a system dialog."
+    "description": "Every time DeepSeek Harness starts, sync this machine's git-backed memory folder with a peer machine once — latest memories at boot, no daemon running in the background. Built for keeping memories on an always-on machine and catching up on a laptop at startup. Failures retry, then raise an OS dialog."
   }
 }

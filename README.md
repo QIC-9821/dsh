@@ -1,24 +1,30 @@
 # dsh-memory-sync
 
-DeepSeek Harness 插件：**每次 Harness 启动时，把本机的 git 记忆目录与对端双向同步一次。**
+[![npm version](https://img.shields.io/npm/v/dsh-memory-sync.svg)](https://www.npmjs.com/package/dsh-memory-sync)
+[![CI](https://github.com/YOUR_GITHUB_NAME/dsh-memory-sync/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_NAME/dsh-memory-sync/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
 
-适合把 `~/.dsh/memories`（或任意 git 目录）放在一台常开的机器上，另一台电脑每次打开 Harness 时自动对齐，平时不做周期同步。
+> 每次打开 DeepSeek Harness，自动把本机的 git 记忆目录和另一台机器双向同步一次——开机就有最新记忆，不用常驻后台。
 
-## 工作方式
+English: [README.en.md](README.en.md)
 
-插件在 Harness 挂载时（即一次启动）依次执行三段：
-
-1. **本机推送**：`git pull --rebase --autostash` → `git add -A` → 有改动就提交 → `git push`（push 被拒时 fetch + rebase 再试一次）。
-2. **对端提交**：通过 ssh 在远端执行一条命令（默认 `DSH_SYNC_NAME=cloud /usr/local/bin/dsh-mem-sync`），让对端把它的改动提交并推回同一个裸仓。
-3. **本机拉回**：再本地执行一次同样的 pull/commit/push，拿到对端刚推上来的提交。
-
-三段都成功才算成功。失败会 60 秒后重试一次；仍失败则写 `last-run.json`，弹系统窗口提醒（Windows/macOS/Linux 各自实现），之后每 10 分钟静默重试，成功后停止。
-
-> 插件只在进程启动后 300 秒内挂载时执行启动同步；热重载/开发时重新加载插件不会触发。
+适合把 `~/.dsh/memories`（或任意 git 目录）放在一台常开的机器上，另一台电脑每次打开 Harness 时自动对齐；平时不做周期同步，也不需要常驻进程。
 
 ## 安装
 
-把本目录作为 Harness 插件安装（bundle 目录形式），例如在 DSH 里用插件管理器的 "install bundle" 指定本目录绝对路径，或按 Harness 文档把 `dsh-memory-sync` 加进 profile 依赖。要求 Node.js ≥ 22。
+```bash
+dsh plugin add dsh-memory-sync
+```
+
+固定版本或从源码安装：
+
+```bash
+dsh plugin add github:YOUR_GITHUB_NAME/dsh-memory-sync#v0.1.0
+dsh plugin add /absolute/path/to/dsh-memory-sync
+```
+
+要求 Node.js ≥ 22（用 Harness 自带运行时也可以）。
 
 安装后在 Harness 设置里找到「启动时同步记忆」并填写配置。配置也可以直接写在 profile 的插槽里：
 
@@ -60,6 +66,18 @@ DeepSeek Harness 插件：**每次 Harness 启动时，把本机的 git 记忆�
 
 状态、日志、锁都在 `$DSH_HOME/memory-sync/`：`last-run.json`、`sync.log`、`lock/sync.lock`。
 
+## 工作方式
+
+插件在 Harness 挂载时（即一次启动）依次执行三段：
+
+1. **本机推送**：`git pull --rebase --autostash` → `git add -A` → 有改动就提交 → `git push`（push 被拒时 fetch + rebase 再试一次）。
+2. **对端提交**：通过 ssh 在远端执行一条命令（默认 `DSH_SYNC_NAME=cloud /usr/local/bin/dsh-mem-sync`），让对端把它的改动提交并推回同一个裸仓。
+3. **本机拉回**：再本地执行一次同样的 pull/commit/push，拿到对端刚推上来的提交。
+
+三段都成功才算成功。失败会 60 秒后重试一次；仍失败则写 `last-run.json`，弹系统窗口提醒（Windows/macOS/Linux 各自实现），之后每 10 分钟静默重试，成功后停止。
+
+> 插件只在进程启动后 300 秒内挂载时执行启动同步；热重载/开发时重新加载插件不会触发。
+
 ## 对端准备
 
 对端只需要一个**裸仓**和一条能提交的同步命令，例如：
@@ -86,6 +104,13 @@ Agent 可调用 `memory_sync`：
 - `{"action":"run"}`：立刻同步一次，返回三段的 exit/耗时/head。
 - `{"action":"status"}`：上次结果、HEAD、dirty、ahead/behind、peer 是否配置。
 
+## 安全与隐私
+
+- 插件只运行本机 `git` 和 `ssh`，不发起其它网络请求、不上传遥测。
+- 它会把 `repoPath` 里的内容提交并推送；`statusFile` 生成的机器快照也会一起进入仓库。同步到公开仓库前请自行确认内容。
+- 失败弹窗包含出错的阶段和 git/ssh 报错，不含仓库文件内容；日志在 `$DSH_HOME/memory-sync/sync.log`。
+- 安全漏洞请走 [SECURITY.md](SECURITY.md) 里的私密渠道，不要开公开 issue。
+
 ## 开发
 
 ```bash
@@ -95,6 +120,6 @@ node --check index.js
 
 测试用临时裸仓 + 两次 clone 覆盖：脏文件提交推送、对端先提交的 rebase、非 git 目录报错、锁互斥与过期回收、配置归一化。
 
-## 许可
+## 许可与贡献
 
-MIT
+MIT。欢迎提 issue / PR，先看 [CONTRIBUTING.md](CONTRIBUTING.md)；变更记录在 [CHANGELOG.md](CHANGELOG.md)。
