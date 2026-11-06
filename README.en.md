@@ -11,6 +11,16 @@
 
 Typical setup: the memory folder (`~/.dsh/memories`) lives on an always-on machine; a laptop syncs its side at startup, lets the server commit and push back, then pulls the result. Nothing runs between startups.
 
+## Demo
+
+Ask the agent for status and you get the whole picture — three phases, each with its own timing and result:
+
+![memory_sync status](docs/memory-status.png)
+
+The startup log of a real run, three phases in a row and `done rc=0`:
+
+![startup sync log](docs/memory-log.png)
+
 ## Install
 
 ```bash

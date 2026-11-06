@@ -1,6 +1,6 @@
 {
   "name": "dsh-memory-sync",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Sync a git-backed memory folder with a peer machine on every DeepSeek Harness startup — no daemon, no cron, no manual pull.",
   "type": "module",
   "license": "MIT",

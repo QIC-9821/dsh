@@ -11,6 +11,16 @@ English: [README.en.md](README.en.md)
 
 适合把 `~/.dsh/memories`（或任意 git 目录）放在一台常开的机器上，另一台电脑每次打开 Harness 时自动对齐；平时不做周期同步，也不需要常驻进程。
 
+## 演示
+
+不用等它开口，Agent 里一句话就能看状态：三段式（本地提交推送 → 对端跑同步 → 本地再拉回）各自的耗时和结果都在 `lastRun` 里。
+
+![memory_sync status](docs/memory-status.png)
+
+真正触发时，本地日志长这样——三段依次 exit=0，最后一行 `done rc=0`：
+
+![启动同步日志](docs/memory-log.png)
+
 ## 安装
 
 ```bash
