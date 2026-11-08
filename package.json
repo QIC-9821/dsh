@@ -1,7 +1,7 @@
 {
   "name": "dsh-memory-sync",
-  "version": "0.1.2",
-  "description": "Sync a git-backed memory folder with a peer machine on every DeepSeek Harness startup — no daemon, no cron, no manual pull.",
+  "version": "0.3.0",
+  "description": "Keep a memory folder in sync across two machines: LAN HTTP snapshots, offline snapshot files, or an SSH peer chain. Includes a desktop settings page and an Android config form.",
   "type": "module",
   "license": "MIT",
   "author": "QIC-9821",
@@ -16,18 +16,21 @@
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
+    "./client": "./client.js",
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg",
     "./package.json": "./package.json"
   },
   "files": [
     "index.js",
+    "client.js",
     "lib/",
     "cordis.patch.yml",
     "locale/",
     "icon.svg",
     "README.md",
     "README.en.md",
+    "MANUAL.md",
     "CHANGELOG.md",
     "LICENSE"
   ],
@@ -38,7 +41,9 @@
     "memory",
     "git",
     "sync",
-    "startup"
+    "startup",
+    "snapshot",
+    "android"
   ],
   "engines": {
     "node": ">=22"
@@ -53,6 +58,13 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
     }
   }
 }

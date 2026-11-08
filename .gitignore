@@ -5,3 +5,6 @@ coverage/
 *.tmp
 .env
 *.local
+tablet.config.json
+dist/
+.tmp-home/

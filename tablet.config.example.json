@@ -1,0 +1,16 @@
+{
+  "repoPath": "/data/user/0/io.github.jackwener.dsh/files/dsh-home/memories",
+  "transport": "http",
+  "peerUrl": "http://192.168.137.1:18792",
+  "machine": "tablet",
+  "memSecret": "REPLACE_WITH_THE_SAME_SECRET_AS_PC",
+  "serve": true,
+  "autoApply": true,
+  "enabled": true,
+  "runOnStartup": true,
+  "intervalSendMinutes": 30,
+  "conflict": "local",
+  "replyOnReceive": true,
+  "keepSnapshots": 5,
+  "maxSnapshotMB": 100
+}

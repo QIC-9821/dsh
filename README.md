@@ -5,21 +5,17 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
 
-> 每次打开 DeepSeek Harness，自动把本机的 git 记忆目录和另一台机器双向同步一次——开机就有最新记忆，不用常驻后台。
+> 在两台机器之间同步 `~/.dsh/memories`：局域网 HTTP 快照、完全离线文件、或 SSH 对端脚本。电脑有设置页，平板有插件设置表单。
 
-English: [README.en.md](README.en.md)
+English: [README.en.md](README.en.md) · 简短说明书: [MANUAL.md](MANUAL.md)
 
-适合把 `~/.dsh/memories`（或任意 git 目录）放在一台常开的机器上，另一台电脑每次打开 Harness 时自动对齐；平时不做周期同步，也不需要常驻进程。
+## 三种通路
 
-## 演示
-
-不用等它开口，Agent 里一句话就能看状态：三段式（本地提交推送 → 对端跑同步 → 本地再拉回）各自的耗时和结果都在 `lastRun` 里。
-
-![memory_sync status](docs/memory-status.png)
-
-真正触发时，本地日志长这样——三段依次 exit=0，最后一行 `done rc=0`：
-
-![启动同步日志](docs/memory-log.png)
+| 通路 | 适合 | 要点 |
+| --- | --- | --- |
+| 双方插件 · 局域网直连 | 两台机器在同一 Wi-Fi / 热点 | 两端装插件、同一个 `memSecret`、互相填 `peerUrl`；不需要外网 |
+| 双方插件 · 离线快照 | 完全不在同一网络 | 导出 `.json.gz`，拷到另一端导入；先预览再合并 |
+| 单方插件 · SSH | 只有一端装插件 | 本机 SSH 登录对端执行同步脚本；对端只需可写记忆目录 + 裸仓/脚本 |
 
 ## 安装
 
@@ -27,109 +23,108 @@ English: [README.en.md](README.en.md)
 dsh plugin add dsh-memory-sync
 ```
 
-固定版本或从源码安装：
+本机开发用 `link:`：
 
-```bash
-dsh plugin add github:QIC-9821/dsh-memory-sync#v0.1.1
-dsh plugin add /absolute/path/to/dsh-memory-sync
+```json
+"dsh-memory-sync": "link:D:/dsh-plugins/dsh-memory-sync"
 ```
 
-要求 Node.js ≥ 22（用 Harness 自带运行时也可以）。
+平板装自包含 zip：`dsh-memory-sync-0.3.0-tablet.zip`（根目录有 `package.json`、无 BOM、已把 schemastery 打进 `dist/index.js`）。
 
-安装后在 Harness 设置里找到「启动时同步记忆」并填写配置。配置也可以直接写在 profile 的插槽里：
+## 设置页
 
-```yaml
-- id: dsh-memory-sync
-  name: 'dsh-memory-sync'
-  config:
-    repoPath: ''            # 留空 = $DSH_HOME/memories
-    remote: cloud
-    branch: main
-    mode: peer
-    peerHost: 203.0.113.10
-    peerUser: dsh
-    peerKeyPath: C:/Users/me/.ssh/id_ed25519
+### 电脑：设置 → 记忆同步
+
+- 测试连接 / 立即双向同步 / 仅推送 / 仅拉取
+- 双方插件直连、离线快照、SSH 三段式
+- 自定义同步规则
+- 日志、快照列表与恢复
+
+保存写到 `~/.dsh/memory-sync/settings.json`，优先级高于 profile 的 `cordis.patch.yml`；点「恢复 profile 配置」可清掉本页覆盖。
+
+### 平板：设置 → 扩展 → 已安装插件 → dsh-memory-sync
+
+使用 `Config` schema 自动生成的表单，字段与电脑页一致。保存后写 profile 配置并重载。平板没有「立即同步」按钮，用 `memory_sync` 工具：
+
+```json
+{"action":"run","direction":"both"}
 ```
+
+## 自定义同步规则
+
+| 键 | 默认 | 说明 |
+| --- | --- | --- |
+| `runOnStartup` | `true` | 启动时跑一次；热重载不算 |
+| `intervalSendMinutes` | `0` | 每 N 分钟发送一次；0=关。HTTP 只推送，SSH 跑三段 |
+| `conflict` | `peer` | 接收方决定：`local`=保本机较新内容，`peer`=保对端（覆盖前备份） |
+| `replyOnReceive` | `false` | 收到并写入后回发一次合并快照；带 `no-reply` 防循环 |
+| `autoApply` | `true` | 自动/定时推送是否落地；手动推送不受限制 |
+
+手动推送带 `x-mem-apply: manual`，对端即使 `autoApply=false` 也会合并；定时/自动推送不带该头。
 
 ## 配置
 
 | 键 | 默认 | 说明 |
 | --- | --- | --- |
-| `repoPath` | `$DSH_HOME/memories` | 要同步的 git 工作目录 |
-| `remote` | `cloud` | git remote 名；不存在时依次尝试 `origin`、`cloud` |
-| `branch` | `main` | 分支名 |
-| `enabled` | `true` | 总开关 |
-| `runOnStartup` | `true` | 启动时自动跑 |
-| `startupGraceSec` | `300` | 启动后多少秒内挂载才算「启动」；超过视为热重载 |
-| `mode` | `peer` | `peer` = 三段式；`local` = 只在本机 pull/commit/push |
-| `peerHost` / `peerUser` | 空 | ssh 目标 |
-| `peerKeyPath` | 空 | 私钥路径；空 = 用 ssh 默认密钥 |
-| `peerCommand` | `/usr/local/bin/dsh-mem-sync` | 对端执行的同步脚本 |
-| `peerEnvName` | `cloud` | 执行时设置的 `DSH_SYNC_NAME` |
-| `retryDelaySec` | `60` | 启动失败后第一次重试间隔；0 关闭 |
-| `healIntervalSec` | `600` | 失败后静默自愈间隔；0 关闭 |
-| `notifyOnFailure` | `true` | 失败弹系统窗口 |
-| `commitPrefix` | `sync` | 自动提交信息前缀 |
-| `gitPath` | `git` | git 可执行文件 |
-| `localTimeoutMs` / `peerTimeoutMs` | `120000` | 单段超时 |
-| `statusFile` | 空 | 每次同步前写一份机器快照到该文件（如 `~/.dsh/memories/pc-status.md`），随同步一起提交；空 = 不写 |
+| `repoPath` | `$DSH_HOME/memories` | 记忆目录 |
+| `remote` / `branch` | `cloud` / `main` | SSH/git 地址与分支 |
+| `enabled` | `true` | 总开关（不启动/不跑定时；手动仍可用） |
+| `startupGraceSec` | `300` | 启动后多少秒内挂载算一次启动 |
+| `transport` | `git` | `http` 或 `git` |
+| `peerUrl` | 空 | 对端快照地址，如 `http://192.168.137.50:18792` |
+| `memSecret` | 空 | 两端一致的共享密钥 |
+| `machine` / `peerMachine` | 主机名 / 空 | 本机/对端名称 |
+| `serve` | `true` | 是否开快照服务 |
+| `listenHost` / `listenPort` | `0.0.0.0` / `18792` | 快照服务地址与端口 |
+| `autoApply` | `true` | 收到自动/定时推送是否立即合并 |
+| `keepSnapshots` / `maxSnapshotMB` | `5` / `100` | 快照保留与大小上限 |
+| `peerHost` / `peerUser` / `peerPort` | 空 / 空 / `22` | SSH 模式目标 |
+| `peerKeyPath` / `peerCommand` / `peerEnvName` | 空 / `/usr/local/bin/dsh-mem-sync` / `cloud` | SSH 模式密钥、对端脚本、环境名 |
+| `retryDelaySec` / `healIntervalSec` | `60` / `600` | 失败重试/自愈间隔 |
+| `intervalSendMinutes` / `conflict` / `replyOnReceive` | `0` / `peer` / `false` | 上面的自定义规则 |
 
-状态、日志、锁都在 `$DSH_HOME/memory-sync/`：`last-run.json`、`sync.log`、`lock/sync.lock`。
+状态、日志、设置、快照都在 `$DSH_HOME/memory-sync/`：`last-run.json`、`sync.log`、`settings.json`、`snapshots/`、`exports/`。
 
 ## 工作方式
 
-插件在 Harness 挂载时（即一次启动）依次执行三段：
-
-1. **本机推送**：`git pull --rebase --autostash` → `git add -A` → 有改动就提交 → `git push`（push 被拒时 fetch + rebase 再试一次）。
-2. **对端提交**：通过 ssh 在远端执行一条命令（默认 `DSH_SYNC_NAME=cloud /usr/local/bin/dsh-mem-sync`），让对端把它的改动提交并推回同一个裸仓。
-3. **本机拉回**：再本地执行一次同样的 pull/commit/push，拿到对端刚推上来的提交。
-
-三段都成功才算成功。失败会 60 秒后重试一次；仍失败则写 `last-run.json`，弹系统窗口提醒（Windows/macOS/Linux 各自实现），之后每 10 分钟静默重试，成功后停止。
-
-> 插件只在进程启动后 300 秒内挂载时执行启动同步；热重载/开发时重新加载插件不会触发。
-
-## 对端准备
-
-对端只需要一个**裸仓**和一条能提交的同步命令，例如：
-
-```bash
-# 裸仓
-git init --bare -b main /srv/dsh-memory.git
-chown -R dsh:dsh /srv/dsh-memory.git
-git --git-dir=/srv/dsh-memory.git symbolic-ref HEAD refs/heads/main
-
-# 对端工作副本（/home/dsh/.dsh/memories）的 remote 指向裸仓
-git -C /home/dsh/.dsh/memories remote add origin /srv/dsh-memory.git
-
-# /usr/local/bin/dsh-mem-sync：pull --rebase --autostash → add/commit → push
-chmod 755 /usr/local/bin/dsh-mem-sync
-```
-
-把本机的 ssh 公钥加到对端用户的 `~/.ssh/authorized_keys`，本机 remote 用 `ssh://dsh@host/srv/dsh-memory.git`。插件只负责「启动时按顺序跑」，不理解仓库布局。
+- 记忆写入照常实时落盘；同步只是在需要时生成快照并合并。
+- HTTP 手动同步：push（带 manual 头）→ pull；只推送/只拉取可单独选。
+- 定时：HTTP 只 push；对端按 `autoApply` 决定是否合并。SSH：跑本地 push → 对端脚本 → 本地 pull。
+- 合并规则：缺失文件补上；相同跳过；`conflict=local` 时本机较新不覆盖，`conflict=peer` 时对端覆盖；每日日志短的不覆盖长的；不删除；覆盖前写 `.bak-snapshot`。
+- 回发：只在本轮真的写入且请求未带 `x-mem-no-reply: 1` 时回发一次，回发本身带 no-reply，避免循环。
 
 ## 工具
 
-Agent 可调用 `memory_sync`：
+`memory_sync`：
 
-- `{"action":"run"}`：立刻同步一次，返回三段的 exit/耗时/head。
-- `{"action":"status"}`：上次结果、HEAD、dirty、ahead/behind、peer 是否配置。
+- `{"action":"run","direction":"both|push|pull"}`：立刻同步。
+- `{"action":"status"}`：上次结果、传输、角色、规则、定时、对端。
+- `{"action":"list"}`：本地/对端快照。
+- `{"action":"restore","snapshot":"<id>"}`：恢复快照。
+- `{"action":"export","path":"..."}`：导出离线快照。
+- `{"action":"import","path":"...","dryRun":true}`：预览/导入离线快照。
 
-## 安全与隐私
+## 设置 API
 
-- 插件只运行本机 `git` 和 `ssh`，不发起其它网络请求、不上传遥测。
-- 它会把 `repoPath` 里的内容提交并推送；`statusFile` 生成的机器快照也会一起进入仓库。同步到公开仓库前请自行确认内容。
-- 失败弹窗包含出错的阶段和 git/ssh 报错，不含仓库文件内容；日志在 `$DSH_HOME/memory-sync/sync.log`。
-- 安全漏洞请走 [SECURITY.md](SECURITY.md) 里的私密渠道，不要开公开 issue。
+`/memory-sync/api/state|config|reset|sync|test|logs|snapshots|restore|export|import`，只允许本机/同源请求；state/config 不回显 `memSecret`。
+
+## 安全
+
+- 设置 API 只允许本机/同源；密钥不回显。
+- 共享密钥等同写权限；快照是明文 gzip，不要放密码。
+- 覆盖前自动备份；不删除文件。
+- 安全漏洞请走 [SECURITY.md](SECURITY.md)，不要开公开 issue。
 
 ## 开发
 
 ```bash
 npm test          # node --test test/*.test.mjs
 node --check index.js
+node --check client.js
 ```
 
-测试用临时裸仓 + 两次 clone 覆盖：脏文件提交推送、对端先提交的 rebase、非 git 目录报错、锁互斥与过期回收、配置归一化。
+平板包构建见 `scripts/build-tablet.mjs`（esbuild 打 `dist/index.js`，把 schemastery 打进去；根目录 package.json，无 BOM）。
 
-## 许可与贡献
+## 许可
 
-MIT。欢迎提 issue / PR，先看 [CONTRIBUTING.md](CONTRIBUTING.md)；变更记录在 [CHANGELOG.md](CHANGELOG.md)。
+MIT。变更记录见 [CHANGELOG.md](CHANGELOG.md)。

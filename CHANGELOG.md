@@ -4,6 +4,45 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-11-08
+
+### Added
+
+- Desktop settings page in the system settings sidebar: test peer, manual
+  both/push/pull, transport switch, custom rules, offline export/import, logs,
+  snapshot restore.
+- Android `Config` schema form (schemastery bundled into the tablet zip) under
+  Settings → Extensions → Installed plugins.
+- Custom rules: `intervalSendMinutes` (scheduled send), `conflict`
+  (`local`/`peer`), `replyOnReceive` (one reply snapshot after applying),
+  plus the existing `runOnStartup` / `autoApply`.
+- Offline transport: export/import portable `.json.gz` snapshots with dry-run
+  preview and backups; new `memory_sync` actions `export` / `import`.
+- `/memory-sync/api/*` settings API, local/same-origin only; secrets are never
+  echoed. `/mem/ping` reports protocol version 3 and a read-only rules summary.
+- Manual pushes send `x-mem-apply: manual` so they merge even when the peer
+  keeps `autoApply` off; reply pushes add `x-mem-no-reply: 1` to stop loops.
+- `scripts/build-tablet.mjs` + verification: esbuild bundle, root
+  `package.json`, no BOM, no web client, `Config` present.
+
+### Changed
+
+- `runHttpSync` takes a direction (`both` / `push` / `pull`); manual pushes can
+  bypass the peer's automatic-apply policy.
+- Applying snapshots now uses the receiver's `conflict` preference instead of
+  the old hard-coded protected list; every overwrite is backed up.
+- HTTP status no longer probes git; git inspection only runs in SSH mode.
+- `peerPort` is configurable for SSH.
+
+## [0.2.0] - 2026-11-08
+
+### Added
+
+- HTTP snapshot transport for Android tablets: push/pull, snapshot retention,
+  restore and a hub server with `x-mem-secret` auth.
+- `keepSnapshots` / `maxSnapshotMB` retention limits and `.bak-snapshot`
+  backups on overwrite.
+
 ## [0.1.2] - 2026-11-06
 
 ### Added
