@@ -43,6 +43,17 @@ export const Config = z
       localTimeoutMs: field(z.natural().default(120000)),
       peerTimeoutMs: field(z.natural().default(120000)),
       statusFile: field(z.string().default('')),
+      transport: field(z.string().default('git')),
+      peerUrl: field(z.string().default('')),
+      peerMachine: field(z.string().default('')),
+      machine: field(z.string().default('')),
+      memSecret: field(z.string().default('')),
+      serve: field(z.boolean().default(true)),
+      listenHost: field(z.string().default('0.0.0.0')),
+      listenPort: field(z.natural().default(18792)),
+      autoApply: field(z.boolean().default(true)),
+      keepSnapshots: field(z.natural().default(5)),
+      maxSnapshotMB: field(z.natural().default(100)),
     })
   : undefined
 
@@ -75,7 +86,10 @@ export async function apply(ctx, config = {}) {
   }
 
   runtime.scheduleStartup()
-  logger.info(`ready: repo=${cfg.repoPath} mode=${cfg.mode} remote=${cfg.remote}/${cfg.branch}`)
+  await runtime.startServer().catch(() => {})
+  logger.info(
+    `ready: repo=${cfg.repoPath} transport=${cfg.transport} mode=${cfg.mode} remote=${cfg.remote}/${cfg.branch}`,
+  )
 
   const dispose = async () => {
     runtime.dispose()
